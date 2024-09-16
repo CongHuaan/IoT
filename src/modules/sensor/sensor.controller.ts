@@ -36,4 +36,14 @@ export class SensorController {
     }
   }
 
+  @Get('latest')
+  async getLatestRecord(@Res() res: Response) {
+    try {
+      const latestRecord = await this.sensorService.getLatestRecord();
+      res.send(latestRecord);
+    } catch (err) {
+      res.status(400).send('Failed to fetch latest sensor data');
+    }
+  }
+
 }
