@@ -44,6 +44,14 @@ export class LedService {
     };
   }
 
+  listStatus(): string {
+    return `{
+      "led1": ${this.localStorage.getItem('led1_status')},
+      "led2": ${this.localStorage.getItem('led2_status')},
+      "led3": ${this.localStorage.getItem('led3_status')}
+    }`;
+  }
+
   async turnOn(id: number): Promise<string> {
     const time_updated = new Date()
       .toISOString()

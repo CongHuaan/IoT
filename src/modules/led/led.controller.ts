@@ -22,6 +22,10 @@ export class LedController {
     }
   }
 
+  @Get('status')
+  listStatus() {
+    return this.ledService.listStatus();
+  }
 
   @Post('turn-on/:id')
   async turnOn(@Param('id', ParseIntPipe) id: number) {
