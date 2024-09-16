@@ -72,7 +72,14 @@ export class LedService {
     console.log('Subscribed to ledesp8266_data');
     try {
       await mqttPromise;
-      
+      let name;
+      if (id == 1) {
+        name = 'Đèn';
+      } else if (id == 2) {
+        name = 'Quạt';
+      } else {
+        name = 'Điều hòa';
+      }
       const sql = `INSERT INTO data_led (name, time_updated, status) VALUES ('${name}', '${time_updated}', 'ON');`;
       await this.dataSource.query(sql);
       console.log('turn on led');
@@ -103,7 +110,14 @@ export class LedService {
 
     try {
       await mqttPromise;
-      
+      let name;
+      if (id == 1) {
+        name = 'Đèn';
+      } else if (id == 2) {
+        name = 'Quạt';
+      } else {
+        name = 'Điều hòa';
+      }
       const sql = `INSERT INTO data_led (name, time_updated, status) VALUES ('${name}', '${time_updated}', 'OFF');`;
       await this.dataSource.query(sql);
       console.log('turn off led');
