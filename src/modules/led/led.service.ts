@@ -44,12 +44,25 @@ export class LedService {
     };
   }
 
-  listStatus(): string {
-    return `{
-      "led1": ${this.localStorage.getItem('led1_status')},
-      "led2": ${this.localStorage.getItem('led2_status')},
-      "led3": ${this.localStorage.getItem('led3_status')}
-    }`;
+  async listStatus(): Promise<string> {
+    const sql = 'SELECT * FROM status_led;';
+    try {
+      const rows = await this.dataSource.query(sql);
+      if (rows.length === 0) {
+        throw new Error('No data found');
+      }
+
+      const status = {
+        led1: rows[0].status,
+        led2: rows[1].status,
+        led3: rows[2].status,
+      };
+
+      return JSON.stringify(status);
+    } catch (err) {
+      console.error('Error fetching status from database:', err);
+      throw new Error('Error fetching status');
+    }
   }
 
   async turnOn(id: number): Promise<string> {
@@ -80,8 +93,11 @@ export class LedService {
       } else {
         name = 'Điều hòa';
       }
-      const sql = `INSERT INTO data_led (name, time_updated, status) VALUES ('${name}', '${time_updated}', 'ON');`;
-      await this.dataSource.query(sql);
+      
+      const sql1 = `INSERT INTO data_led (name, time_updated, status) VALUES ('${name}', '${time_updated}', 'ON');`;
+      const sql2 = `UPDATE status_led SET status = 'ON' WHERE id = ${id};`;
+      await this.dataSource.query(sql1);
+      await this.dataSource.query(sql2);
       console.log('turn on led');
       return 'turn on led';
     } catch (err) {
@@ -118,8 +134,10 @@ export class LedService {
       } else {
         name = 'Điều hòa';
       }
-      const sql = `INSERT INTO data_led (name, time_updated, status) VALUES ('${name}', '${time_updated}', 'OFF');`;
-      await this.dataSource.query(sql);
+      const sql1 = `INSERT INTO data_led (name, time_updated, status) VALUES ('${name}', '${time_updated}', 'OFF');`;
+      const sql2 = `UPDATE status_led SET status = 'OFF' WHERE id = ${id};`;
+      await this.dataSource.query(sql2);
+      await this.dataSource.query(sql1);
       console.log('turn off led');
       return 'turn off led';
     } catch (err) {
