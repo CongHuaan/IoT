@@ -81,7 +81,7 @@ export class LedService {
         }
       });
     });
-    this.mqttService.publish('led_state', `{led_id: ${id}, status: "ON"}`);
+    this.mqttService.publish('led_status', `{led_id: ${id}, status: "ON"}`);
     console.log('Subscribed to ledesp8266_data');
     try {
       await mqttPromise;
@@ -122,7 +122,7 @@ export class LedService {
         }
       });
     });
-    this.mqttService.publish('led_state', `{led_id: ${id}, status: "OFF"}`);
+    this.mqttService.publish('led_status', `{led_id: ${id}, status: "OFF"}`);
 
     try {
       await mqttPromise;

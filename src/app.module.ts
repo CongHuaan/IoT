@@ -5,6 +5,7 @@ import { DatabaseModule } from './base/db/database.module';
 import { ConfigModule } from '@nestjs/config';
 import { SensorModule } from './modules/sensor/sensor.module';
 import { LedModule } from './modules/led/led.module';
+import { MqttModule } from './base/mqtt/mqtt.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { LedModule } from './modules/led/led.module';
     DatabaseModule,
     SensorModule,
     LedModule,
+    MqttModule,
   ],
   controllers: [AppController],
   providers: [AppService],

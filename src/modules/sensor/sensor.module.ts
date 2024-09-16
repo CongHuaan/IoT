@@ -1,12 +1,14 @@
 import { Module } from '@nestjs/common';
 import { SensorController } from './sensor.controller';
 import { SensorService } from './sensor.service';
-import { MqttService } from 'src/base/mqtt/mqtt.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { MqttModule } from 'src/base/mqtt/mqtt.module';
+import { SensorGateway } from './sensor.gateway';
 
 @Module({
-    imports: [TypeOrmModule.forFeature([])],
+    imports: [TypeOrmModule.forFeature([]), MqttModule],
     controllers: [SensorController],
-    providers: [SensorService, MqttService],
+    providers: [SensorService, SensorGateway],
+    exports: [SensorService],
 })
 export class SensorModule {}

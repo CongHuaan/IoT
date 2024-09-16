@@ -2,12 +2,14 @@ import { Injectable } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { MqttService } from 'src/base/mqtt/mqtt.service';
+import { SensorGateway } from './sensor.gateway';
 
 @Injectable()
 export class SensorService {
   constructor(
     @InjectDataSource() private readonly dataSource: DataSource,
     private readonly mqttService: MqttService,
+    private sensorGateway: SensorGateway,
   ) {
     this.subscribeToEsp8266Data();
   }
@@ -66,6 +68,8 @@ export class SensorService {
       data: paginatedSensors,
     };
   }
+
+  
   private subscribeToEsp8266Data() {
     this.mqttService.subscribe(
       'esp8266_data',
@@ -73,8 +77,8 @@ export class SensorService {
         const data = JSON.parse(payload.toString());
         console.log(`Received data from topic ${topic}:`, data);
 
-        // Handle the received data (e.g., save to database or process it)
         await this.processReceivedData(data);
+        this.sensorGateway.sendSensorData(data);
       },
     );
   }
