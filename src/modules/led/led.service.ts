@@ -3,6 +3,7 @@ import { MqttService } from 'src/base/mqtt/mqtt.service';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { LocalStorage } from 'node-localstorage';
+import { DateTime } from 'luxon';
 
 @Injectable()
 export class LedService {
@@ -66,10 +67,8 @@ export class LedService {
   }
 
   async turnOn(id: number): Promise<string> {
-    const time_updated = new Date()
-      .toISOString()
-      .slice(0, 19)
-      .replace('T', ' ');
+    const now = DateTime.now().setZone('Asia/Ho_Chi_Minh');
+    const temp = now.toFormat('yyyy-MM-dd HH:mm:ss');
     const mqttPromise = new Promise<void>((resolve, reject) => {
       this.mqttService.subscribe('ledesp8266_data', (topic, payload) => {
         const message = payload.toString();
@@ -93,8 +92,8 @@ export class LedService {
       } else {
         name = 'Điều hòa';
       }
-      
-      const sql1 = `INSERT INTO data_led (name, time_updated, status) VALUES ('${name}', '${time_updated}', 'ON');`;
+
+      const sql1 = `INSERT INTO data_led (name, time_updated, status) VALUES ('${name}', '${temp}', 'ON');`;
       const sql2 = `UPDATE status_led SET status = 'ON' WHERE id = ${id};`;
       await this.dataSource.query(sql1);
       await this.dataSource.query(sql2);
@@ -107,10 +106,8 @@ export class LedService {
   }
 
   async turnOff(id: number): Promise<string> {
-    const time_updated = new Date()
-      .toISOString()
-      .slice(0, 19)
-      .replace('T', ' ');
+    const now = DateTime.now().setZone('Asia/Ho_Chi_Minh');
+    const temp = now.toFormat('yyyy-MM-dd HH:mm:ss');
     const mqttPromise = new Promise<void>((resolve, reject) => {
       this.mqttService.subscribe('ledesp8266_data', (topic, payload) => {
         const message = payload.toString();
@@ -134,7 +131,7 @@ export class LedService {
       } else {
         name = 'Điều hòa';
       }
-      const sql1 = `INSERT INTO data_led (name, time_updated, status) VALUES ('${name}', '${time_updated}', 'OFF');`;
+      const sql1 = `INSERT INTO data_led (name, time_updated, status) VALUES ('${name}', '${temp}', 'OFF');`;
       const sql2 = `UPDATE status_led SET status = 'OFF' WHERE id = ${id};`;
       await this.dataSource.query(sql2);
       await this.dataSource.query(sql1);

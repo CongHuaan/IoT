@@ -3,6 +3,7 @@ import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { MqttService } from 'src/base/mqtt/mqtt.service';
 import { SensorGateway } from './sensor.gateway';
+import { DateTime } from 'luxon';
 
 @Injectable()
 export class SensorService {
@@ -69,7 +70,6 @@ export class SensorService {
     };
   }
 
-  
   private subscribeToEsp8266Data() {
     this.mqttService.subscribe(
       'esp8266_data',
@@ -85,7 +85,9 @@ export class SensorService {
 
   private async processReceivedData(data: any) {
     try {
-      const temp = new Date().toISOString().slice(0, 19).replace('T', ' ');
+      const now = DateTime.now().setZone('Asia/Ho_Chi_Minh');
+      const temp = now.toFormat('yyyy-MM-dd HH:mm:ss');
+      console.log(temp);
       const sql = `
         INSERT INTO data_sensor (temperature, humidity, light, time_updated)
         VALUES (?, ?, ?, ?)
