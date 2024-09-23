@@ -19,7 +19,7 @@ export class SensorService {
     const sql = 'SELECT * FROM data_sensor';
     try {
       const rows = await this.dataSource.query(sql);
-      console.log(rows);
+      // console.log(rows);
       return rows;
     } catch (err) {
       throw new Error('Not found');
@@ -33,15 +33,83 @@ export class SensorService {
     order?: string,
     searchField?: string,
     searchValue?: string,
+    globalSearchValue?: string,
   ) {
     // Giả sử bạn có một mảng cảm biến để phân trang
     let sensors = await this.getAllSensors();
-    if (searchField && searchValue) {
-      sensors = sensors.filter((sensor) =>
-        String(sensor[searchField])
-          .toLowerCase()
-          .includes(String(searchValue).toLowerCase()),
-      );
+
+    if (globalSearchValue) {
+      const searchValueLower = String(globalSearchValue).toLowerCase();
+      console.log(searchValueLower);
+      sensors = sensors.filter((sensor) => {
+        const humidity = String(sensor['humidity']).toLowerCase();
+        const temperature = String(sensor['temperature']).toLowerCase();
+        const light = String(sensor['light']).toLowerCase();
+        const timeUpdated: string = String(
+          sensor['time_updated'],
+        ).toLowerCase();
+        console.log(timeUpdated);
+
+        // Chuyển đổi timeUpdated thành đối tượng Date
+        const date: Date = new Date(timeUpdated);
+
+        // Tạo hàm để thêm số 0 vào trước nếu số chỉ có một chữ số
+        const padZero = (num: number): string =>
+          num.toString().padStart(2, '0');
+
+        // Định dạng lại thành YYYY-MM-DD HH:mm:ss
+        const formattedDate: string = `${date.getFullYear()}-${padZero(date.getMonth() + 1)}-${padZero(date.getDate())} ${padZero(date.getHours())}:${padZero(date.getMinutes())}:${padZero(date.getSeconds())}`;
+
+        console.log(formattedDate);
+
+        // Chuyển giá trị ngày thành chuỗi theo định dạng dễ tìm kiếm (YYYY-MM-DD HH:mm:ss)
+        const sensorDate = new Date(timeUpdated);
+        const sensorDateStr = sensorDate.toISOString().split('T')[0]; // Chỉ lấy phần ngày 'YYYY-MM-DD'
+        const sensorDateTimeStr = sensorDate
+          .toISOString()
+          .replace('T', ' ')
+          .substring(0, 19); // Lấy cả ngày và giờ 'YYYY-MM-DD HH:mm:ss'
+
+        // Tìm kiếm theo thứ tự các cột
+        return (
+          humidity.includes(searchValueLower) ||
+          temperature.includes(searchValueLower) ||
+          light.includes(searchValueLower) ||
+          sensorDateStr.includes(searchValueLower) ||
+          sensorDateTimeStr.includes(searchValueLower) ||
+          formattedDate.includes(searchValueLower)
+        );
+      });
+    } else if (searchField && searchValue) {
+      sensors = sensors.filter((sensor) => {
+        const sensorValue = String(sensor[searchField]).toLowerCase();
+        const searchValueLower = String(searchValue).toLowerCase();
+
+        // Kiểm tra nếu trường tìm kiếm là thời gian
+        if (searchField === 'time_updated') {
+          const date: Date = new Date(sensorValue);
+
+          // Tạo hàm để thêm số 0 vào trước nếu số chỉ có một chữ số
+          const padZero = (num: number): string =>
+            num.toString().padStart(2, '0');
+
+          // Định dạng lại thành YYYY-MM-DD HH:mm:ss
+          const formattedDate: string = `${date.getFullYear()}-${padZero(date.getMonth() + 1)}-${padZero(date.getDate())} ${padZero(date.getHours())}:${padZero(date.getMinutes())}:${padZero(date.getSeconds())}`;
+
+          console.log(formattedDate);
+          if (
+            formattedDate.includes(searchValueLower)
+          ) {
+            return true;
+          }
+
+          // Ngoài ra, vẫn tìm kiếm dựa trên chuỗi gốc
+          return sensorValue.includes(searchValueLower);
+        }
+
+        // Tìm kiếm cho các trường khác (humidity, temperature, light)
+        return sensorValue.includes(searchValueLower);
+      });
     }
 
     // Sắp xếp nếu có tham số sortBy và order

@@ -10,8 +10,8 @@ export class LedController {
 
   @Get('paginated')
   @ApiOperation({ summary: 'Phân trang' })
-  @ApiQuery({ name: 'page', required: true, description: 'Page number' })
-  @ApiQuery({ name: 'limit', required: true, description: 'Number of items per page' })
+  @ApiQuery({ name: 'page', required: true, description: 'Trang' })
+  @ApiQuery({ name: 'limit', required: true, description: 'Số bản ghi trên một trang' })
   @ApiResponse({ status: 200, description: 'Successful response' })
   @ApiResponse({ status: 400, description: 'Bad Request' })
   async getPaginated(
@@ -36,7 +36,7 @@ export class LedController {
 
   @Post('turn-on/:id')
   @ApiOperation({ summary: 'Bật thiết bị' })
-  @ApiParam({ name: 'id', required: true, description: 'ID of the LED to turn on' })
+  @ApiParam({ name: 'id', required: true, description: 'ID của thiết bị muốn bật' })
   @ApiResponse({ status: 200, description: 'Successful response' })
   @ApiResponse({ status: 400, description: 'Bad Request' })
   async turnOn(@Param('id', ParseIntPipe) id: number) {
@@ -45,7 +45,7 @@ export class LedController {
 
   @Post('turn-off/:id')
   @ApiOperation({ summary: 'Tắt thiết bị' })
-  @ApiParam({ name: 'id', required: true, description: 'ID of the LED to turn off' })
+  @ApiParam({ name: 'id', required: true, description: 'ID của thiết bị muốn tắt' })
   @ApiResponse({ status: 200, description: 'Successful response' })
   @ApiResponse({ status: 400, description: 'Bad Request' })
   async turnOff(@Param('id', ParseIntPipe) id: number) {
